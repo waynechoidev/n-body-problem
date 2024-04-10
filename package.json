@@ -1,0 +1,17 @@
+{
+  "name": "webgpu-pbr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.40",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-glsl": "^1.3.0"
+  }
+}
