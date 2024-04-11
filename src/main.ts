@@ -62,7 +62,7 @@ async function main() {
   // ]);
 
   // Geometry
-  const sphere = new Sphere(env.device, 1);
+  const sphere = new Sphere(env.device, WIDTH >= 500 ? 0.6 : 0.4);
 
   // Shaders
   const mainShader = new Shader({
@@ -179,7 +179,7 @@ async function main() {
 
   // Model
   const translation = vec3.fromValues(0, 0, 0);
-  const scaling = vec3.fromValues(0.7, 0.7, 0.7);
+  const scaling = vec3.fromValues(1.0, 1.0, 1.0);
   const rotation = vec3.fromValues(0, 0, 0);
 
   // View
