@@ -3,7 +3,7 @@ import main_frag from "@/shaders/main.frag.wgsl";
 import RenderEnv from "@/engine/render-env";
 import Shader from "@/engine/shader";
 import Sphere from "@/engine/geometry/sphere";
-import { vec3, mat4, vec2 } from "@external/glmatrix/index";
+import { vec3, mat4 } from "@external/glmatrix/index";
 import { toRadian } from "@external/glmatrix/common.js";
 import Camera from "./engine/camera";
 import { MathUtils } from "./engine/math-utils";
