@@ -11,17 +11,21 @@ struct Uniforms {
   model: mat4x4f,
   view: mat4x4f,
   projection: mat4x4f,
+  invTransposedModel: mat4x4f
 };
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 
 @vertex fn vs(
-  vert: Vertex,
+  input: Vertex,
 ) -> VSOutput {
-  var vsOut: VSOutput;
-  let position = uni.projection * uni.view * uni.model * vec4f(vert.pos , 1.0);
+  var output: VSOutput;
+  // ignore scale
+  output.normalWorld = normalize(uni.invTransposedModel * vec4f(input.norm, 1.0)).xyz;
+  output.tangentWorld = normalize(uni.model * vec4f(input.tangent, 1.0)).xyz;
+  output.texCoord = input.tex;
 
-  vsOut.position = position;
-  vsOut.color = vec4f(position.xyz, 1.0);
-  return vsOut;
+	output.posWorld = (uni.model * vec4f(input.pos, 1.0)).xyz;
+  output.position = uni.projection * uni.view * uni.model * vec4f(input.pos , 1.0);
+  return output;
 }

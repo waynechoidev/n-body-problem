@@ -5,6 +5,7 @@ export default class RenderEnv {
   private _context?: GPUCanvasContext;
   private _encoder?: GPUCommandEncoder;
   private _pass?: GPURenderPassEncoder;
+  private _depthTexture?: GPUTexture;
 
   constructor(canvas: HTMLCanvasElement) {
     this._canvas = canvas;
@@ -40,15 +41,38 @@ export default class RenderEnv {
       console.error("RenderEnv was not initialized!");
       return;
     }
+    const canvasTexture = this._context.getCurrentTexture();
+
+    if (
+      !this._depthTexture ||
+      this._depthTexture.width !== canvasTexture.width ||
+      this._depthTexture.height !== canvasTexture.height
+    ) {
+      if (this._depthTexture) {
+        this._depthTexture.destroy();
+      }
+      this._depthTexture = this._device.createTexture({
+        size: [canvasTexture.width, canvasTexture.height],
+        format: "depth24plus",
+        usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+    }
+
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
-          view: this._context.getCurrentTexture().createView(),
+          view: canvasTexture.createView(),
           clearValue: [0, 0, 0, 1],
           loadOp: "clear",
           storeOp: "store",
         },
       ],
+      depthStencilAttachment: {
+        view: this._depthTexture.createView(),
+        depthClearValue: 1.0,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+      },
     };
     this._encoder = this._device.createCommandEncoder();
     this._pass = this._encoder.beginRenderPass(renderPassDescriptor);

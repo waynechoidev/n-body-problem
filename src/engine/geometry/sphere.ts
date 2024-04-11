@@ -5,8 +5,8 @@ export default class Sphere extends Mesh {
   constructor(device: GPUDevice, radius: number) {
     super(device, "sphere");
 
-    const numOfSlices = 100;
-    const numOfStacks = 100;
+    const numOfSlices = 500;
+    const numOfStacks = 500;
 
     const dTheta = (-2 * Math.PI) / numOfSlices;
     const dPhi = (-1 * Math.PI) / numOfStacks;

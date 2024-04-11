@@ -39,23 +39,17 @@ export default class Camera {
   }
 
   get position() {
-    return this._position;
+    const viewRotationMatrix = this.getViewRotationMatrix();
+    const position = vec3.create();
+    vec3.transformMat4(position, this._position, viewRotationMatrix);
+
+    return position;
   }
 
   public getViewMatrix() {
     const view = mat4.create();
 
-    const viewRotationMatrix = mat4.create();
-    mat4.rotateY(
-      viewRotationMatrix,
-      viewRotationMatrix,
-      toRadian(this._rotate[1])
-    );
-    mat4.rotateX(
-      viewRotationMatrix,
-      viewRotationMatrix,
-      toRadian(this._rotate[0])
-    );
+    const viewRotationMatrix = this.getViewRotationMatrix();
 
     const eye = vec3.create();
     const center = vec3.create();
@@ -111,5 +105,20 @@ export default class Camera {
     document.addEventListener(endEvent, () => {
       this._isDragging = false;
     });
+  }
+
+  private getViewRotationMatrix() {
+    const viewRotationMatrix = mat4.create();
+    mat4.rotateY(
+      viewRotationMatrix,
+      viewRotationMatrix,
+      toRadian(this._rotate[1])
+    );
+    mat4.rotateX(
+      viewRotationMatrix,
+      viewRotationMatrix,
+      toRadian(this._rotate[0])
+    );
+    return viewRotationMatrix;
   }
 }
