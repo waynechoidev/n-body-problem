@@ -35,8 +35,8 @@ async function main() {
   await roughnessMap.initialize(baseUrl + "pbr/antique-grate1-roughness.jpg");
   const aoMap = new Texture(env.device);
   await aoMap.initialize(baseUrl + "pbr/antique-grate1-ao.jpg");
-  const brdfMap = new Texture(env.device);
-  await brdfMap.initialize(baseUrl + "cubemap/air_museum_playground_brdf.jpg");
+  const brdfLUT = new Texture(env.device);
+  await brdfLUT.initialize(baseUrl + "cubemap/air_museum_playground_brdf.jpg");
 
   const envCubemap = new Cubemap(env.device);
   await envCubemap.initialize([
@@ -194,7 +194,7 @@ async function main() {
       { binding: 5, resource: metallicMap.view },
       { binding: 6, resource: roughnessMap.view },
       { binding: 7, resource: aoMap.view },
-      { binding: 8, resource: brdfMap.view },
+      { binding: 8, resource: brdfLUT.view },
       { binding: 9, resource: envCubemap.view },
       { binding: 10, resource: irradianceCubemap.view },
     ],
