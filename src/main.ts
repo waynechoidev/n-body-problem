@@ -28,6 +28,8 @@ async function main() {
 
   // Textures
   const baseUrl = "";
+  const heightMap = new Texture(env.device);
+  await heightMap.initialize(baseUrl + "pbr/antique-grate1-height.jpg");
   const albedoMap = new Texture(env.device);
   await albedoMap.initialize(baseUrl + "pbr/antique-grate1-albedo.jpg");
   const normalMap = new Texture(env.device);
@@ -99,15 +101,17 @@ async function main() {
             },
           },
           {
+            // Sampler
             binding: 2,
-            visibility: GPUShaderStage.FRAGMENT,
+            visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
             sampler: {
               type: "filtering",
             },
           },
           {
+            // Height map
             binding: 3,
-            visibility: GPUShaderStage.FRAGMENT,
+            visibility: GPUShaderStage.VERTEX,
             texture: {
               sampleType: "float",
               viewDimension: "2d",
@@ -158,11 +162,19 @@ async function main() {
             visibility: GPUShaderStage.FRAGMENT,
             texture: {
               sampleType: "float",
-              viewDimension: "cube",
+              viewDimension: "2d",
             },
           },
           {
             binding: 10,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              sampleType: "float",
+              viewDimension: "cube",
+            },
+          },
+          {
+            binding: 11,
             visibility: GPUShaderStage.FRAGMENT,
             texture: {
               sampleType: "float",
@@ -235,14 +247,15 @@ async function main() {
       { binding: 0, resource: { buffer: vertexUniformBuffer } },
       { binding: 1, resource: { buffer: fragmentUniformBuffer } },
       { binding: 2, resource: sampler },
-      { binding: 3, resource: albedoMap.view },
-      { binding: 4, resource: normalMap.view },
-      { binding: 5, resource: metallicMap.view },
-      { binding: 6, resource: roughnessMap.view },
-      { binding: 7, resource: aoMap.view },
-      { binding: 8, resource: brdfLUT.view },
-      { binding: 9, resource: envCubemap.view },
-      { binding: 10, resource: irradianceCubemap.view },
+      { binding: 3, resource: heightMap.view },
+      { binding: 4, resource: albedoMap.view },
+      { binding: 5, resource: normalMap.view },
+      { binding: 6, resource: metallicMap.view },
+      { binding: 7, resource: roughnessMap.view },
+      { binding: 8, resource: aoMap.view },
+      { binding: 9, resource: brdfLUT.view },
+      { binding: 10, resource: envCubemap.view },
+      { binding: 11, resource: irradianceCubemap.view },
     ],
   });
 

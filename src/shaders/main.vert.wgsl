@@ -15,6 +15,7 @@ struct Uniforms {
 };
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
+@group(0) @binding(3) var heightMap: texture_2d<f32>;
 
 @vertex fn vs(
   input: Vertex,
@@ -25,7 +26,11 @@ struct Uniforms {
   output.tangentWorld = normalize(uni.model * vec4f(input.tangent, 1.0)).xyz;
   output.texCoord = input.tex;
 
-	output.posWorld = (uni.model * vec4f(input.pos, 1.0)).xyz;
-  output.position = uni.projection * uni.view * uni.model * vec4f(input.pos , 1.0);
+  let heightScale:f32 = 0.1;
+  let height:f32 = textureSampleLevel(heightMap, mySampler, input.tex, 0).x;
+  var newPos: vec3f = input.pos + (output.normalWorld * height * heightScale);
+
+	output.posWorld = (uni.model * vec4f(newPos, 1.0)).xyz;
+  output.position = uni.projection * uni.view * uni.model * vec4f(newPos , 1.0);
   return output;
 }

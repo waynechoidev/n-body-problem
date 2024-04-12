@@ -7,17 +7,16 @@ struct Uniforms {
 };
 
 @group(0) @binding(1) var<uniform> uni: Uniforms;
-@group(0) @binding(2) var mySampler: sampler;
 
-@group(0) @binding(3) var albedoMap: texture_2d<f32>;
-@group(0) @binding(4) var normalMap: texture_2d<f32>;
-@group(0) @binding(5) var metallicMap: texture_2d<f32>;
-@group(0) @binding(6) var roughnessMap: texture_2d<f32>;
-@group(0) @binding(7) var aoMap: texture_2d<f32>;
-@group(0) @binding(8) var brdfLUT: texture_2d<f32>;
+@group(0) @binding(4) var albedoMap: texture_2d<f32>;
+@group(0) @binding(5) var normalMap: texture_2d<f32>;
+@group(0) @binding(6) var metallicMap: texture_2d<f32>;
+@group(0) @binding(7) var roughnessMap: texture_2d<f32>;
+@group(0) @binding(8) var aoMap: texture_2d<f32>;
+@group(0) @binding(9) var brdfLUT: texture_2d<f32>;
 
-@group(0) @binding(9) var envCubemap: texture_cube<f32>;
-@group(0) @binding(10) var irradianceCubemap: texture_cube<f32>;
+@group(0) @binding(10) var envCubemap: texture_cube<f32>;
+@group(0) @binding(11) var irradianceCubemap: texture_cube<f32>;
 
 
 @fragment fn fs(input: VSOutput) -> @location(0) vec4f {

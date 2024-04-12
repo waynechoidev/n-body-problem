@@ -5,3 +5,5 @@ struct VSOutput {
   @location(2) tangentWorld: vec3f,
   @location(3) texCoord: vec2f,
 };
+
+@group(0) @binding(2) var mySampler: sampler;
