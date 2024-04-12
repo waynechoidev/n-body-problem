@@ -1,5 +1,5 @@
 #include "main.common.wgsl"
-#include "main.frag.utils.wgsl"
+#include "main.utils.wgsl"
 
 struct Uniforms {
   camPos: vec3f,
