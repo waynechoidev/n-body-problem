@@ -7,7 +7,7 @@ struct Uniforms {
 };
 
 @group(0) @binding(1) var<uniform> uni: Uniforms;
-@group(0) @binding(2) var sampler2D: sampler;
+@group(0) @binding(2) var mySampler: sampler;
 
 @group(0) @binding(3) var albedoMap: texture_2d<f32>;
 @group(0) @binding(4) var normalMap: texture_2d<f32>;
@@ -16,12 +16,16 @@ struct Uniforms {
 @group(0) @binding(7) var aoMap: texture_2d<f32>;
 @group(0) @binding(8) var brdfMap: texture_2d<f32>;
 
+@group(0) @binding(9) var envCubemap: texture_cube<f32>;
+@group(0) @binding(10) var irradianceCubemap: texture_cube<f32>;
+
+
 @fragment fn fs(input: VSOutput) -> @location(0) vec4f {
   // Apply gamma correction to the sampled albedo texture to convert it from sRGB space to linear space
-  let albedo:vec3f = pow(textureSample(albedoMap, sampler2D, input.texCoord).rgb, vec3(2.2));
-  let metallic:f32 = textureSample(metallicMap, sampler2D, input.texCoord).r;
-  let roughness:f32 = textureSample(roughnessMap, sampler2D, input.texCoord).r;
-  let ao:f32 = textureSample(aoMap, sampler2D, input.texCoord).r;
+  let albedo:vec3f = pow(textureSample(albedoMap, mySampler, input.texCoord).rgb, vec3(2.2));
+  let metallic:f32 = textureSample(metallicMap, mySampler, input.texCoord).r;
+  let roughness:f32 = textureSample(roughnessMap, mySampler, input.texCoord).r;
+  let ao:f32 = textureSample(aoMap, mySampler, input.texCoord).r;
 
   let normalWorld:vec3f = normalize(input.normalWorld);
   // Adjust the tangent vector to ensure it is perpendicular to the surface
@@ -29,7 +33,7 @@ struct Uniforms {
   let tangent:vec3f = normalize(input.tangentWorld - dot(input.tangentWorld, normalWorld) * normalWorld);
   let bitangent:vec3f = cross(normalWorld, tangent);
   let TBN:mat3x3f = mat3x3f(tangent, bitangent, normalWorld);
-  let N:vec3f = normalize(TBN * (textureSample(normalMap, sampler2D, input.texCoord).xyz * 2.0 - 1.0));
+  let N:vec3f = normalize(TBN * (textureSample(normalMap, mySampler, input.texCoord).xyz * 2.0 - 1.0));
 
   let V:vec3f = normalize(uni.camPos - input.posWorld);
   let R:vec3f = reflect(-V, N);
@@ -93,6 +97,7 @@ struct Uniforms {
 
   return vec4f(color, 1.0);
 
-  // return textureSampleLevel(albedoMap, sampler2D, input.texCoord, 0);
+  // return textureSample(envCubemap, mySampler, input.normalWorld);
+  // return textureSampleLevel(albedoMap, mySampler, input.texCoord, 0);
   // return vec4f(albedo, 1.0);
 }

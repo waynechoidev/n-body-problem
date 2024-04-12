@@ -8,6 +8,7 @@ import { toRadian } from "@external/glmatrix/common.js";
 import Camera from "./engine/camera";
 import { MathUtils } from "./engine/math-utils";
 import Texture from "./engine/texture";
+import Cubemap from "./engine/cubemap";
 
 const WIDTH = document.documentElement.clientWidth;
 const HEIGHT = document.documentElement.clientHeight;
@@ -37,29 +38,33 @@ async function main() {
   const brdfMap = new Texture(env.device);
   await brdfMap.initialize(baseUrl + "cubemap/air_museum_playground_brdf.jpg");
 
+  const envCubemap = new Cubemap(env.device);
+  await envCubemap.initialize([
+    baseUrl + "cubemap/air_museum_playground_env_px.jpg",
+    baseUrl + "cubemap/air_museum_playground_env_nx.jpg",
+    baseUrl + "cubemap/air_museum_playground_env_py.jpg",
+    baseUrl + "cubemap/air_museum_playground_env_ny.jpg",
+    baseUrl + "cubemap/air_museum_playground_env_pz.jpg",
+    baseUrl + "cubemap/air_museum_playground_env_nz.jpg",
+  ]);
+  const irradianceCubemap = new Cubemap(env.device);
+  await irradianceCubemap.initialize(
+    [
+      baseUrl + "cubemap/air_museum_playground_irradiance_px.jpg",
+      baseUrl + "cubemap/air_museum_playground_irradiance_nx.jpg",
+      baseUrl + "cubemap/air_museum_playground_irradiance_py.jpg",
+      baseUrl + "cubemap/air_museum_playground_irradiance_ny.jpg",
+      baseUrl + "cubemap/air_museum_playground_irradiance_pz.jpg",
+      baseUrl + "cubemap/air_museum_playground_irradiance_nz.jpg",
+    ],
+    5
+  );
+
   const sampler = env.device.createSampler({
     magFilter: "linear",
     minFilter: "linear",
+    mipmapFilter: "linear",
   });
-
-  // Load textures
-
-  // const envCubemapTextures = await loadImages([
-  //   baseUrl + "cubemap/air_museum_playground_env_px.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_env_nx.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_env_py.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_env_ny.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_env_pz.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_env_nz.jpg",
-  // ]);
-  // const irradianceCubemapTextures = await loadImages([
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_px.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_nx.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_py.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_ny.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_pz.jpg",
-  //   baseUrl + "cubemap/air_museum_playground_irradiance_nz.jpg",
-  // ]);
 
   // Geometry
   const sphere = new Sphere(env.device, WIDTH >= 500 ? 0.6 : 0.4);
@@ -144,6 +149,22 @@ async function main() {
               viewDimension: "2d",
             },
           },
+          {
+            binding: 9,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              sampleType: "float",
+              viewDimension: "cube",
+            },
+          },
+          {
+            binding: 10,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              sampleType: "float",
+              viewDimension: "cube",
+            },
+          },
         ],
       }),
     ],
@@ -174,6 +195,8 @@ async function main() {
       { binding: 6, resource: roughnessMap.view },
       { binding: 7, resource: aoMap.view },
       { binding: 8, resource: brdfMap.view },
+      { binding: 9, resource: envCubemap.view },
+      { binding: 10, resource: irradianceCubemap.view },
     ],
   });
 
