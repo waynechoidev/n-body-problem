@@ -1,4 +1,4 @@
-import { vec2, vec3, mat4 } from "@external/glmatrix/index";
+import { vec2, vec3 } from "@external/glmatrix/index";
 import Mesh from "./mesh";
 
 export default class Skybox extends Mesh {
