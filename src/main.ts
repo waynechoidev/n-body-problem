@@ -1,5 +1,7 @@
 import main_vert from "@/shaders/main.vert.wgsl";
 import main_frag from "@/shaders/main.frag.wgsl";
+import bg_vert from "@/shaders/bg.vert.wgsl";
+import bg_frag from "@/shaders/bg.frag.wgsl";
 import RenderEnv from "@/engine/render-env";
 import Shader from "@/engine/shader";
 import Sphere from "@/engine/geometry/sphere";
@@ -9,6 +11,7 @@ import Camera from "./engine/camera";
 import { MathUtils } from "./engine/math-utils";
 import Texture from "./engine/texture";
 import Cubemap from "./engine/cubemap";
+import Skybox from "./engine/geometry/skybox";
 
 const WIDTH = document.documentElement.clientWidth;
 const HEIGHT = document.documentElement.clientHeight;
@@ -68,6 +71,7 @@ async function main() {
 
   // Geometry
   const sphere = new Sphere(env.device, WIDTH >= 500 ? 0.6 : 0.4);
+  const skybox = new Skybox(env.device);
 
   // Shaders
   const mainShader = new Shader({
@@ -170,6 +174,42 @@ async function main() {
     ],
   });
 
+  const bgShader = new Shader({
+    label: "bg",
+    device: env.device,
+    vertexShader: bg_vert,
+    fragmentShader: bg_frag,
+    bindGroupLayouts: [
+      env.device.createBindGroupLayout({
+        entries: [
+          {
+            // Vertex Uniforms
+            binding: 0,
+            visibility: GPUShaderStage.VERTEX,
+            buffer: {
+              type: "uniform",
+            },
+          },
+          {
+            binding: 1,
+            visibility: GPUShaderStage.FRAGMENT,
+            sampler: {
+              type: "filtering",
+            },
+          },
+          {
+            binding: 2,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              sampleType: "float",
+              viewDimension: "cube",
+            },
+          },
+        ],
+      }),
+    ],
+  });
+
   const vertexUniformBuffer = env.device.createBuffer({
     label: "vertex uniforms",
     size: (16 + 16 + 16 + 16) * Float32Array.BYTES_PER_ELEMENT,
@@ -179,6 +219,12 @@ async function main() {
   const fragmentUniformBuffer = env.device.createBuffer({
     label: "fragment uniforms",
     size: (3 + 1) * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const bgUniformBuffer = env.device.createBuffer({
+    label: "vertex uniforms",
+    size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -197,6 +243,16 @@ async function main() {
       { binding: 8, resource: brdfLUT.view },
       { binding: 9, resource: envCubemap.view },
       { binding: 10, resource: irradianceCubemap.view },
+    ],
+  });
+
+  const bgBindGroup = env.device.createBindGroup({
+    label: "bind group for object",
+    layout: bgShader.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: bgUniformBuffer } },
+      { binding: 1, resource: sampler },
+      { binding: 2, resource: envCubemap.view },
     ],
   });
 
@@ -232,6 +288,11 @@ async function main() {
         ...invTransposedModel,
       ])
     );
+    env.device?.queue.writeBuffer(
+      bgUniformBuffer,
+      0,
+      new Float32Array([...view, ...projection])
+    );
 
     const position = vec3.clone(camera.position);
     env.device?.queue.writeBuffer(
@@ -241,6 +302,10 @@ async function main() {
     );
 
     const pass = env.getPass();
+
+    bgShader.use(pass);
+    pass?.setBindGroup(0, bgBindGroup);
+    skybox.draw(pass);
 
     mainShader.use(pass);
     pass?.setBindGroup(0, bindGroup);

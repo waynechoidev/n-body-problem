@@ -71,7 +71,7 @@ export default class Shader {
       },
       depthStencil: {
         depthWriteEnabled: true,
-        depthCompare: "less",
+        depthCompare: "less-equal",
         format: "depth24plus",
       },
     });
