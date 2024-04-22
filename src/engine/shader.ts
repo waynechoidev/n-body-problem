@@ -7,30 +7,22 @@ export default class Shader {
     device,
     vertexShader,
     fragmentShader,
-    buffer,
-    bindGroupLayouts,
   }: {
     label: string;
     device: GPUDevice;
     vertexShader: string;
     fragmentShader: string;
-    buffer?: Iterable<GPUVertexBufferLayout | null>;
-    bindGroupLayouts?: Iterable<GPUBindGroupLayout>;
   }) {
     this._label = label;
     this._pipeline = device.createRenderPipeline({
       label: `${label} pipeline`,
-      layout: bindGroupLayouts
-        ? device.createPipelineLayout({
-            bindGroupLayouts: bindGroupLayouts,
-          })
-        : "auto",
+      layout: "auto",
       vertex: {
         module: device.createShaderModule({
           label: `${label} vertex shader`,
           code: vertexShader,
         }),
-        buffers: buffer ?? [
+        buffers: [
           {
             arrayStride: 11 * Float32Array.BYTES_PER_ELEMENT,
             attributes: [
