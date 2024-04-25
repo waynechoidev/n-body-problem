@@ -8,12 +8,10 @@ import Pipeline from "@/engine/pipeline";
 import { vec3, mat4, vec2 } from "@external/glmatrix/index";
 import { toRadian } from "@external/glmatrix/common.js";
 import Camera from "./engine/camera";
-import { MathUtils } from "./engine/math-utils";
 import Cubemap from "./engine/cubemap";
 import Skybox from "./engine/geometry/skybox";
 import { Vertex } from "./engine/common";
 import { VertexBuffers } from "./engine/vertex-buffers";
-import Sphere from "./engine/geometry/sphere";
 import ComputePipeline from "./engine/compute-pipeline";
 
 const WIDTH = window.innerWidth;
