@@ -7,52 +7,52 @@ export default class Skybox extends Mesh {
 
     this._vertices.push({
       position: vec3.fromValues(-1, 1, -1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(-1, -1, -1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(1, 1, -1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(1, -1, -1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
 
     this._vertices.push({
       position: vec3.fromValues(-1, 1, 1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(1, 1, 1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(-1, -1, 1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
     this._vertices.push({
       position: vec3.fromValues(1, -1, 1),
-      normal: vec3.fromValues(0, 0, 0),
-      tangent: vec3.fromValues(0, 0, 0),
+      velocity: vec3.fromValues(0, 0, 0),
       texCoord: vec2.fromValues(0, 0),
+      radius: 0,
     });
 
     this._indices.push(

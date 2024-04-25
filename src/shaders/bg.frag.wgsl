@@ -1,4 +1,4 @@
-#include "bg.common.wgsl"
+#include "common.wgsl"
 
 @group(0) @binding(1) var mySampler: sampler;
 @group(0) @binding(2) var envCubemap: texture_cube<f32>;

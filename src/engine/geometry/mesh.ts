@@ -18,8 +18,8 @@ export default class Mesh {
   protected initialize() {
     const verticesData: number[] = [];
     for (let i = 0; i < this._vertices.length; i++) {
-      const { position, normal, tangent, texCoord } = this._vertices[i];
-      verticesData.push(...position, ...normal, ...tangent, ...texCoord);
+      const { position, velocity, texCoord, radius } = this._vertices[i];
+      verticesData.push(...position, 0, ...velocity, 0, ...texCoord, radius, 0);
     }
     const vertexValues = new Float32Array(verticesData);
     this._vertexBuffer = this._device.createBuffer({

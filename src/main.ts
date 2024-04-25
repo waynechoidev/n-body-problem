@@ -1,19 +1,23 @@
+import billboard_compute from "@/shaders/billboard.compute.wgsl";
 import main_vert from "@/shaders/main.vert.wgsl";
 import main_frag from "@/shaders/main.frag.wgsl";
 import bg_vert from "@/shaders/bg.vert.wgsl";
 import bg_frag from "@/shaders/bg.frag.wgsl";
 import RenderEnv from "@/engine/render-env";
-import Shader from "@/engine/shader";
-import Sphere from "@/engine/geometry/sphere";
-import { vec3, mat4 } from "@external/glmatrix/index";
+import Pipeline from "@/engine/pipeline";
+import { vec3, mat4, vec2 } from "@external/glmatrix/index";
 import { toRadian } from "@external/glmatrix/common.js";
 import Camera from "./engine/camera";
 import { MathUtils } from "./engine/math-utils";
 import Cubemap from "./engine/cubemap";
 import Skybox from "./engine/geometry/skybox";
+import { Vertex } from "./engine/common";
+import { VertexBuffers } from "./engine/vertex-buffers";
+import Sphere from "./engine/geometry/sphere";
+import ComputePipeline from "./engine/compute-pipeline";
 
-const WIDTH = document.documentElement.clientWidth;
-const HEIGHT = document.documentElement.clientHeight;
+const WIDTH = window.innerWidth;
+const HEIGHT = window.innerHeight;
 
 async function main() {
   // Initialize
@@ -29,12 +33,12 @@ async function main() {
   const baseUrl = "";
   const envCubemap = new Cubemap(env.device);
   await envCubemap.initialize([
-    baseUrl + "cubemap/air_museum_playground_env_px.jpg",
-    baseUrl + "cubemap/air_museum_playground_env_nx.jpg",
-    baseUrl + "cubemap/air_museum_playground_env_py.jpg",
-    baseUrl + "cubemap/air_museum_playground_env_ny.jpg",
-    baseUrl + "cubemap/air_museum_playground_env_pz.jpg",
-    baseUrl + "cubemap/air_museum_playground_env_nz.jpg",
+    baseUrl + "cubemap/px.jpg",
+    baseUrl + "cubemap/nx.jpg",
+    baseUrl + "cubemap/py.jpg",
+    baseUrl + "cubemap/ny.jpg",
+    baseUrl + "cubemap/pz.jpg",
+    baseUrl + "cubemap/nz.jpg",
   ]);
 
   const sampler = env.device.createSampler({
@@ -43,57 +47,88 @@ async function main() {
     mipmapFilter: "linear",
   });
 
-  // Geometry
-  const sphere = new Sphere(env.device, WIDTH >= 500 ? 0.6 : 0.4);
-  const skybox = new Skybox(env.device);
+  // Pipelines
+  const computeBillboardPipeline = new ComputePipeline({
+    label: "billboard",
+    device: env.device,
+    computeShader: billboard_compute,
+  });
 
-  // Shaders
-  const mainShader = new Shader({
+  const mainPipeline = new Pipeline({
     label: "main",
     device: env.device,
     vertexShader: main_vert,
     fragmentShader: main_frag,
   });
 
-  const bgShader = new Shader({
+  const bgPipeline = new Pipeline({
     label: "bg",
     device: env.device,
     vertexShader: bg_vert,
     fragmentShader: bg_frag,
   });
 
-  const vertexUniformBuffer = env.device.createBuffer({
-    label: "vertex uniforms",
-    size: (16 + 16 + 16 + 16) * Float32Array.BYTES_PER_ELEMENT,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  // Geometry
+  const skybox = new Skybox(env.device);
+
+  // Vertex buffers
+  const NUM_OF_OBJECT = 2;
+  const objectVertices: Vertex[] = [];
+  objectVertices.push({
+    position: vec3.fromValues(-5, 0, -7),
+    velocity: vec3.fromValues(0, 0, 0),
+    texCoord: vec2.fromValues(0, 0),
+    radius: 1,
+  });
+  objectVertices.push({
+    position: vec3.fromValues(5, 0, -7),
+    velocity: vec3.fromValues(0, 0, 0),
+    texCoord: vec2.fromValues(0, 0),
+    radius: 1,
   });
 
-  const bgUniformBuffer = env.device.createBuffer({
+  const objectBuffers = new VertexBuffers(env.device, "object");
+  await objectBuffers.initialize(objectVertices);
+
+  // Buffers
+  const matrixUniformBuffer = env.device.createBuffer({
     label: "vertex uniforms",
     size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
+  const cameraUniformBuffer = env.device.createBuffer({
+    label: "vertex uniforms",
+    size: (3 + 1 + 3 + 1) * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  // Bind Groups
   const bindGroup = env.device.createBindGroup({
     label: "bind group for object",
-    layout: mainShader.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: vertexUniformBuffer } }],
+    layout: mainPipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: matrixUniformBuffer } }],
+  });
+
+  const computeBillboardBindGroup = env.device.createBindGroup({
+    label: "compute billboard bind group",
+    layout: computeBillboardPipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: objectBuffers.point } },
+      { binding: 1, resource: { buffer: objectBuffers.billboard } },
+      { binding: 2, resource: { buffer: cameraUniformBuffer } },
+    ],
   });
 
   const bgBindGroup = env.device.createBindGroup({
     label: "bind group for object",
-    layout: bgShader.getBindGroupLayout(0),
+    layout: bgPipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: bgUniformBuffer } },
+      { binding: 0, resource: { buffer: matrixUniformBuffer } },
       { binding: 1, resource: sampler },
       { binding: 2, resource: envCubemap.view },
     ],
   });
-
-  // Model
-  const translation = vec3.fromValues(0, 0, 0);
-  const scaling = vec3.fromValues(1.0, 1.0, 1.0);
-  const rotation = vec3.fromValues(0, 0, 0);
 
   // View
   const camera = new Camera({
@@ -106,39 +141,47 @@ async function main() {
   const projection = mat4.create();
   mat4.perspective(projection, toRadian(45), WIDTH / HEIGHT, 0.1, 100);
 
-  function render() {
-    const model = MathUtils.getModelMatrix({ translation, scaling, rotation });
+  async function render() {
     const view = camera.getViewMatrix();
-    const invTransposedModel = mat4.clone(model);
-    mat4.invert(invTransposedModel, invTransposedModel);
-    mat4.transpose(invTransposedModel, invTransposedModel);
     env.device?.queue.writeBuffer(
-      vertexUniformBuffer,
-      0,
-      new Float32Array([
-        ...model,
-        ...view,
-        ...projection,
-        ...invTransposedModel,
-      ])
-    );
-    env.device?.queue.writeBuffer(
-      bgUniformBuffer,
+      matrixUniformBuffer,
       0,
       new Float32Array([...view, ...projection])
     );
 
-    const pass = env.getPass();
+    env.device?.queue.writeBuffer(
+      cameraUniformBuffer,
+      0,
+      new Float32Array([...camera.position, 0, ...camera.up, 0])
+    );
 
-    bgShader.use(pass);
-    pass?.setBindGroup(0, bgBindGroup);
-    skybox.draw(pass);
+    env.setEncoder();
 
-    mainShader.use(pass);
-    pass?.setBindGroup(0, bindGroup);
-    sphere.draw(pass);
+    // Compute
+    const computePass = env.getComputePass();
 
-    env.endPass();
+    computeBillboardPipeline.use(computePass);
+    computePass.setBindGroup(0, computeBillboardBindGroup);
+    computePass.dispatchWorkgroups(1, 1);
+
+    computePass.end();
+
+    // Graphics
+    const mainPass = env.getGraphicsPass();
+
+    bgPipeline.use(mainPass);
+    mainPass?.setBindGroup(0, bgBindGroup);
+    skybox.draw(mainPass);
+
+    mainPipeline.use(mainPass);
+    mainPass?.setBindGroup(0, bindGroup);
+    mainPass.setVertexBuffer(0, objectBuffers.billboard);
+    mainPass.draw(NUM_OF_OBJECT * 6);
+
+    mainPass.end();
+
+    env.finishEncoder();
+
     requestAnimationFrame(render);
   }
 

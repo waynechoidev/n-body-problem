@@ -46,6 +46,14 @@ export default class Camera {
     return position;
   }
 
+  get up() {
+    const viewRotationMatrix = this.getViewRotationMatrix();
+    const up = vec3.create();
+    vec3.transformMat4(up, this._up, viewRotationMatrix);
+
+    return up;
+  }
+
   public getViewMatrix() {
     const view = mat4.create();
 

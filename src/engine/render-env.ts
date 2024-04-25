@@ -16,8 +16,10 @@ export default class RenderEnv {
   }
 
   public async initialize(width: number, height: number) {
-    this._canvas.width = width;
-    this._canvas.height = height;
+    this._canvas.style.width = `${width}px`;
+    this._canvas.style.height = `${height}px`;
+    this._canvas.width = width * 2;
+    this._canvas.height = height * 2;
     this._adapter = (await navigator.gpu?.requestAdapter()) as GPUAdapter;
     this._device = (await this._adapter?.requestDevice()) as GPUDevice;
     if (!this._device) {
@@ -36,12 +38,28 @@ export default class RenderEnv {
     });
   }
 
-  public getPass() {
-    if (!this._context || !this._device) {
+  public setEncoder() {
+    if (!this._device) {
       console.error("RenderEnv was not initialized!");
       return;
     }
-    const canvasTexture = this._context.getCurrentTexture();
+    this._encoder = this._device.createCommandEncoder({
+      label: "encoder",
+    });
+  }
+
+  public get encoder() {
+    return this._encoder!;
+  }
+
+  public getGraphicsPass() {
+    if (!this._context || !this._device) {
+      console.error("RenderEnv was not initialized!");
+    }
+    if (!this._encoder) {
+      console.error("Encoder was not created!");
+    }
+    const canvasTexture = this._context!.getCurrentTexture();
 
     if (
       !this._depthTexture ||
@@ -51,7 +69,7 @@ export default class RenderEnv {
       if (this._depthTexture) {
         this._depthTexture.destroy();
       }
-      this._depthTexture = this._device.createTexture({
+      this._depthTexture = this._device!.createTexture({
         size: [canvasTexture.width, canvasTexture.height],
         format: "depth24plus",
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -59,6 +77,7 @@ export default class RenderEnv {
     }
 
     const renderPassDescriptor: GPURenderPassDescriptor = {
+      label: "render pass",
       colorAttachments: [
         {
           view: canvasTexture.createView(),
@@ -74,18 +93,28 @@ export default class RenderEnv {
         depthStoreOp: "store",
       },
     };
-    this._encoder = this._device.createCommandEncoder();
-    this._pass = this._encoder.beginRenderPass(renderPassDescriptor);
+    this._pass = this._encoder!.beginRenderPass(renderPassDescriptor);
     return this._pass;
   }
 
-  public endPass() {
+  public getComputePass() {
+    if (!this._encoder) {
+      console.error("Encoder was not created!");
+    }
+    return this._encoder!.beginComputePass({
+      label: "compute pass",
+    });
+  }
+
+  public finishEncoder() {
     if (!this._device) {
       console.error("RenderEnv was not initialized!");
-      return;
     }
-    this._pass?.end();
-    const commandBuffer = this._encoder?.finish();
-    if (commandBuffer) this._device.queue.submit([commandBuffer]);
+    if (!this._encoder) {
+      console.error("Encoder was not created!");
+    }
+
+    const commandBuffer = this._encoder!.finish();
+    this._device!.queue.submit([commandBuffer]);
   }
 }
