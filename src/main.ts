@@ -84,9 +84,9 @@ async function main() {
   const NUM_OF_OBJECT = 3;
   const objectVertices: Vertex[] = [];
   objectVertices.push({
-    position: vec3.fromValues(0, -1, 0),
+    position: vec3.fromValues(0, 0, 0),
     velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(1, 0, 0),
+    color: vec3.fromValues(0.8, 0.2, 0.2),
     texCoord: vec2.fromValues(0, 0),
     radius: 0.2,
     mass: 0.05,
@@ -94,7 +94,7 @@ async function main() {
   objectVertices.push({
     position: vec3.fromValues(4, -1, -2),
     velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(0, 1, 0),
+    color: vec3.fromValues(0.2, 0.8, 0.8),
     texCoord: vec2.fromValues(0, 0),
     radius: 0.1,
     mass: 0.02,
@@ -102,7 +102,7 @@ async function main() {
   objectVertices.push({
     position: vec3.fromValues(-2, 4, -4),
     velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(0, 0, 1),
+    color: vec3.fromValues(0.8, 0.8, 0.2),
     texCoord: vec2.fromValues(0, 0),
     radius: 0.3,
     mass: 0.03,
