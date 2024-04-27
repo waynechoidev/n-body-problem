@@ -24,7 +24,7 @@ export default class Pipeline {
         }),
         buffers: [
           {
-            arrayStride: 12 * Float32Array.BYTES_PER_ELEMENT,
+            arrayStride: 16 * Float32Array.BYTES_PER_ELEMENT,
             attributes: [
               { shaderLocation: 0, offset: 0, format: "float32x3" }, // position
               // padding * 1
@@ -37,14 +37,24 @@ export default class Pipeline {
               {
                 shaderLocation: 2,
                 offset: 8 * Float32Array.BYTES_PER_ELEMENT,
+                format: "float32x3",
+              }, // color
+              // padding * 1
+              {
+                shaderLocation: 3,
+                offset: 12 * Float32Array.BYTES_PER_ELEMENT,
                 format: "float32x2",
               }, // texCoord
               {
-                shaderLocation: 3,
-                offset: 10 * Float32Array.BYTES_PER_ELEMENT,
+                shaderLocation: 4,
+                offset: 14 * Float32Array.BYTES_PER_ELEMENT,
                 format: "float32",
               }, // radius
-              // padding * 1
+              {
+                shaderLocation: 5,
+                offset: 15 * Float32Array.BYTES_PER_ELEMENT,
+                format: "float32",
+              }, // mass
             ],
           },
         ],

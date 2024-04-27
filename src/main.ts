@@ -1,4 +1,5 @@
 import billboard_compute from "@/shaders/billboard.compute.wgsl";
+import movement_compute from "@/shaders/movement.compute.wgsl";
 import main_vert from "@/shaders/main.vert.wgsl";
 import main_frag from "@/shaders/main.frag.wgsl";
 import bg_vert from "@/shaders/bg.vert.wgsl";
@@ -13,6 +14,7 @@ import Skybox from "./engine/geometry/skybox";
 import { Vertex } from "./engine/common";
 import { VertexBuffers } from "./engine/vertex-buffers";
 import ComputePipeline from "./engine/compute-pipeline";
+import Texture from "./engine/texture";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -39,6 +41,9 @@ async function main() {
     baseUrl + "cubemap/nz.jpg",
   ]);
 
+  const starTex = new Texture(env.device);
+  await starTex.initialize(baseUrl + "star.png");
+
   const sampler = env.device.createSampler({
     magFilter: "linear",
     minFilter: "linear",
@@ -46,6 +51,12 @@ async function main() {
   });
 
   // Pipelines
+  const computeMovementPipeline = new ComputePipeline({
+    label: "movement",
+    device: env.device,
+    computeShader: movement_compute,
+  });
+
   const computeBillboardPipeline = new ComputePipeline({
     label: "billboard",
     device: env.device,
@@ -70,19 +81,31 @@ async function main() {
   const skybox = new Skybox(env.device);
 
   // Vertex buffers
-  const NUM_OF_OBJECT = 2;
+  const NUM_OF_OBJECT = 3;
   const objectVertices: Vertex[] = [];
   objectVertices.push({
-    position: vec3.fromValues(-5, 0, -7),
+    position: vec3.fromValues(0, -1, 0),
     velocity: vec3.fromValues(0, 0, 0),
+    color: vec3.fromValues(1, 0, 0),
     texCoord: vec2.fromValues(0, 0),
-    radius: 1,
+    radius: 0.2,
+    mass: 0.05,
   });
   objectVertices.push({
-    position: vec3.fromValues(5, 0, -7),
+    position: vec3.fromValues(4, -1, -2),
     velocity: vec3.fromValues(0, 0, 0),
+    color: vec3.fromValues(0, 1, 0),
     texCoord: vec2.fromValues(0, 0),
-    radius: 1,
+    radius: 0.1,
+    mass: 0.02,
+  });
+  objectVertices.push({
+    position: vec3.fromValues(-2, 4, -4),
+    velocity: vec3.fromValues(0, 0, 0),
+    color: vec3.fromValues(0, 0, 1),
+    texCoord: vec2.fromValues(0, 0),
+    radius: 0.3,
+    mass: 0.03,
   });
 
   const objectBuffers = new VertexBuffers(env.device, "object");
@@ -90,14 +113,26 @@ async function main() {
 
   // Buffers
   const matrixUniformBuffer = env.device.createBuffer({
-    label: "vertex uniforms",
+    label: "matrix uniforms",
     size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
+  const fragUniformBuffer = env.device.createBuffer({
+    label: "frag uniforms",
+    size: 3 * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
   const cameraUniformBuffer = env.device.createBuffer({
-    label: "vertex uniforms",
+    label: "camera uniforms",
     size: (3 + 1 + 3 + 1) * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const deltaUniformBuffer = env.device.createBuffer({
+    label: "time uniform buffer",
+    size: Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -105,7 +140,21 @@ async function main() {
   const bindGroup = env.device.createBindGroup({
     label: "bind group for object",
     layout: mainPipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: matrixUniformBuffer } }],
+    entries: [
+      { binding: 0, resource: { buffer: matrixUniformBuffer } },
+      { binding: 1, resource: { buffer: fragUniformBuffer } },
+      { binding: 2, resource: starTex.view },
+      { binding: 3, resource: sampler },
+    ],
+  });
+
+  const computeMovementBindGroup = env.device.createBindGroup({
+    label: "compute movement bind group",
+    layout: computeMovementPipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: objectBuffers.point } },
+      { binding: 1, resource: { buffer: deltaUniformBuffer } },
+    ],
   });
 
   const computeBillboardBindGroup = env.device.createBindGroup({
@@ -139,7 +188,24 @@ async function main() {
   const projection = mat4.create();
   mat4.perspective(projection, toRadian(45), WIDTH / HEIGHT, 0.1, 100);
 
+  let previousFrameTime = 0;
   async function render() {
+    const time = performance.now();
+    const delta: number = time - previousFrameTime;
+    previousFrameTime = time;
+
+    env.device?.queue.writeBuffer(
+      deltaUniformBuffer,
+      0,
+      new Float32Array([delta])
+    );
+
+    env.device?.queue.writeBuffer(
+      fragUniformBuffer,
+      0,
+      new Float32Array([time * 0.001, WIDTH, HEIGHT])
+    );
+
     const view = camera.getViewMatrix();
     env.device?.queue.writeBuffer(
       matrixUniformBuffer,
@@ -157,6 +223,10 @@ async function main() {
 
     // Compute
     const computePass = env.getComputePass();
+
+    computeMovementPipeline.use(computePass);
+    computePass.setBindGroup(0, computeMovementBindGroup);
+    computePass.dispatchWorkgroups(1, 1);
 
     computeBillboardPipeline.use(computePass);
     computePass.setBindGroup(0, computeBillboardBindGroup);

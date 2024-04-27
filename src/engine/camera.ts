@@ -105,8 +105,6 @@ export default class Camera {
 
         this._initialX = currentX;
         this._initialY = currentY;
-
-        e.preventDefault();
       }
     });
 

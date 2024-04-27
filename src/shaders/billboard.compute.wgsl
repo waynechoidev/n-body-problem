@@ -41,6 +41,6 @@ fn computeSomething(
 
     for (var i = 0; i < 6; i++) {
         let newPos:vec3f = input.position + pos[i].x * right.xyz * input.radius + pos[i].y * up.xyz * input.radius;
-        outputVertex[startIndex * 6 + i] = Vertex(newPos, input.velocity, tex[i], input.radius);
+        outputVertex[startIndex * 6 + i] = Vertex(newPos, input.velocity, input.color, tex[i], input.radius, input.mass);
     }
 }
