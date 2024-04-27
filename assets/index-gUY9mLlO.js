@@ -99,14 +99,14 @@ struct MatrixUniforms {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;
             let distance = length(distance_vec);
-            let force = (0.0000067 * body.mass * other.mass) / distance * distance;
+            let force = (0.067 * body.mass * other.mass) / distance * distance;
             let direction = normalize(distance_vec);
             acceleration += direction * force / body.mass;
         }
     }
 
     body.velocity += acceleration * delta;
-    body.position += body.velocity * delta;
+    body.position += body.velocity * delta * 0.001;
     objects[index] = body;
 }`,Z=`struct VSOutput {
   @builtin(position) position: vec4f,
