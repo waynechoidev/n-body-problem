@@ -92,7 +92,7 @@ struct MatrixUniforms {
     let numBodies:u32 = 3;
     let index = global_invocation_id.x;
     var body : Vertex = objects[index];
-    var acceleration = vec3<f32>(0.0, 0.0, 0.0);
+    var acceleration = vec3(0.0, 0.0, 0.0);
 
     for (var i = 0u; i < numBodies; i++) {
         if (i != index) {
@@ -101,7 +101,7 @@ struct MatrixUniforms {
             let distance = length(distance_vec);
             let force = (0.0000067 * body.mass * other.mass) / distance * distance;
             let direction = normalize(distance_vec);
-            acceleration += direction * force / body.mass;
+            acceleration += vec3(direction * force / body.mass);
         }
     }
 
