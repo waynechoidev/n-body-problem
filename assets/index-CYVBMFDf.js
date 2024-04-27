@@ -99,7 +99,7 @@ struct MatrixUniforms {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;
             let distance = length(distance_vec);
-            let force = (0.0000067 * body.mass * other.mass) / distance * distance;
+            let force = (0.0000067 * body.mass * other.mass) / distance;
             let direction = normalize(distance_vec);
             acceleration += vec3(direction * force / body.mass);
         }
