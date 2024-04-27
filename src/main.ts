@@ -15,11 +15,19 @@ import { Vertex } from "./engine/common";
 import { VertexBuffers } from "./engine/vertex-buffers";
 import ComputePipeline from "./engine/compute-pipeline";
 import Texture from "./engine/texture";
+import { isMobile } from "./util";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 
 async function main() {
+  if (isMobile()) {
+    alert(
+      "On mobile devices, we will not support this feature due to potential precision issues with the computations."
+    );
+    return;
+  }
+
   // Initialize
   const env = new RenderEnv(
     document.querySelector("canvas") as HTMLCanvasElement
