@@ -91,6 +91,7 @@ struct MatrixUniforms {
 ) {
     let numBodies:u32 = 3;
     let index = global_invocation_id.x;
+    var body : Vertex = objects[index];
     var acceleration = vec3<f32>(0.0, 0.0, 0.0);
 
     for (var i = 0u; i < numBodies; i++) {
@@ -104,9 +105,9 @@ struct MatrixUniforms {
         }
     }
 
-    let newVelocity = input.velocity + acceleration * delta;
-    let newPosition = input.position + newVelocity * delta * 0.001;
-    objects[index] = Vertex(newPosition, input.velocity, input.color, input.tex, input.radius, input.mass);
+    let newVelocity = body.velocity + acceleration * delta;
+    let newPosition = body.position + newVelocity * delta * 0.001;
+    objects[index] = Vertex(newPosition, body.velocity, body.color, body.texCoord, body.radius, body.mass);
 }`,Z=`struct VSOutput {
   @builtin(position) position: vec4f,
   @location(1) texCoord: vec2f,
