@@ -86,7 +86,7 @@ struct MatrixUniforms {
 @group(0) @binding(0) var<storage, read_write> objects: array<Vertex>;
 @group(0) @binding(1) var<uniform> delta: f32;
 
-const MIN_DISTANCE: f32 = 0.001; 
+const MIN_DISTANCE: f32 = 0.1; 
 
 @compute @workgroup_size(256) fn computeSomething(
     @builtin(global_invocation_id) global_invocation_id : vec3<u32>,
