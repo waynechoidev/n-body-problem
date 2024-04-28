@@ -7,9 +7,9 @@ struct FragUniforms {
   height:f32,
 };
 
-@group(0) @binding(1) var<uniform> uni: FragUniforms;
-@group(0) @binding(2) var tex: texture_2d<f32>;
-@group(0) @binding(3) var mySampler: sampler;
+@group(0) @binding(1) var tex: texture_2d<f32>;
+@group(0) @binding(2) var mySampler: sampler;
+@group(0) @binding(3) var<uniform> timeUniform: f32;
 
 fn snoise(uvInput:vec3f, res:f32) -> f32 {
 	let s = vec3f(1e0, 1e2, 1e4);
@@ -46,11 +46,9 @@ fn snoise(uvInput:vec3f, res:f32) -> f32 {
 	let radius:f32 = 0.24 + brightness * 0.2;
 	let invRadius:f32 = 1.0/radius;
 	
-  let aspect:f32 = max(uni.height, uni.width) / min(uni.height, uni.width);
-	let time:f32 = uni.time * 0.1;
+	let time:f32 = timeUniform * 0.1;
 	let uv:vec2f = input.texCoord;
 	var p:vec2f = -0.5 + uv;
-	p.x *= aspect;
 
 	let fade:f32 = pow( length( 2.0 * p ), 0.5 );
 	var fVal1:f32 = 1.0 - fade;
@@ -77,7 +75,6 @@ fn snoise(uvInput:vec3f, res:f32) -> f32 {
 	var starSphere:vec3f = vec3f( 0.0 );
 	
 	var sp:vec2f = -1.0 + 2.0 * uv;
-	sp.x *= aspect;
 	sp *= ( 2.0 - brightness );
   let r:f32 = dot(sp,sp);
 	var f:f32 = (1.0-sqrt(abs(1.0-r)))/(r) + brightness * 0.5;

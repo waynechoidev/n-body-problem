@@ -126,9 +126,9 @@ async function main() {
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
-  const fragUniformBuffer = env.device.createBuffer({
+  const timeUniformBuffer = env.device.createBuffer({
     label: "frag uniforms",
-    size: 3 * Float32Array.BYTES_PER_ELEMENT,
+    size: 1 * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -150,9 +150,9 @@ async function main() {
     layout: mainPipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: matrixUniformBuffer } },
-      { binding: 1, resource: { buffer: fragUniformBuffer } },
-      { binding: 2, resource: starTex.view },
-      { binding: 3, resource: sampler },
+      { binding: 1, resource: starTex.view },
+      { binding: 2, resource: sampler },
+      { binding: 3, resource: { buffer: timeUniformBuffer } },
     ],
   });
 
@@ -209,7 +209,7 @@ async function main() {
     );
 
     env.device?.queue.writeBuffer(
-      fragUniformBuffer,
+      timeUniformBuffer,
       0,
       new Float32Array([time * 0.001, WIDTH, HEIGHT])
     );
