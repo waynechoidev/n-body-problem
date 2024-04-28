@@ -104,7 +104,7 @@ struct MatrixUniforms {
             if (distance > 0.001) {
                 direction = normalize(distance_vec);
             }
-            acceleration += direction * force;
+            acceleration += direction * 0.001;
         }
     }
 
