@@ -15,6 +15,7 @@ import { Vertex } from "./engine/common";
 import { VertexBuffers } from "./engine/vertex-buffers";
 import ComputePipeline from "./engine/compute-pipeline";
 import Texture from "./engine/texture";
+import { getRandomFloat } from "./utils";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -81,32 +82,51 @@ async function main() {
   const skybox = new Skybox(env.device);
 
   // Vertex buffers
-  const NUM_OF_OBJECT = 3;
+  const NUM_OF_OBJECT = 7;
   const objectVertices: Vertex[] = [];
-  objectVertices.push({
-    position: vec3.fromValues(0, 0, 0),
-    velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(0.8, 0.2, 0.2),
-    texCoord: vec2.fromValues(0, 0),
-    radius: 0.5,
-    mass: 0.05,
-  });
-  objectVertices.push({
-    position: vec3.fromValues(4, -1, -2),
-    velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(0.2, 0.8, 0.8),
-    texCoord: vec2.fromValues(0, 0),
-    radius: 0.2,
-    mass: 0.02,
-  });
-  objectVertices.push({
-    position: vec3.fromValues(-2, 4, -4),
-    velocity: vec3.fromValues(0, 0, 0),
-    color: vec3.fromValues(0.8, 0.8, 0.2),
-    texCoord: vec2.fromValues(0, 0),
-    radius: 0.3,
-    mass: 0.03,
-  });
+  for (let i = 0; i < NUM_OF_OBJECT; ++i) {
+    const mass = getRandomFloat(0.01, 0.05);
+    objectVertices.push({
+      position: vec3.fromValues(
+        getRandomFloat(-5, 5),
+        getRandomFloat(-5, 5),
+        getRandomFloat(-5, 5)
+      ),
+      velocity: vec3.fromValues(0, 0, 0),
+      color: vec3.fromValues(
+        getRandomFloat(0, 1),
+        getRandomFloat(0, 1),
+        getRandomFloat(0, 1)
+      ),
+      texCoord: vec2.fromValues(0, 0),
+      radius: mass * getRandomFloat(9, 11),
+      mass: mass,
+    });
+  }
+  // objectVertices.push({
+  //   position: vec3.fromValues(0, 0, 0),
+  //   velocity: vec3.fromValues(0, 0, 0),
+  //   color: vec3.fromValues(0.8, 0.2, 0.2),
+  //   texCoord: vec2.fromValues(0, 0),
+  //   radius: 0.5,
+  //   mass: 0.05,
+  // });
+  // objectVertices.push({
+  //   position: vec3.fromValues(4, -1, -2),
+  //   velocity: vec3.fromValues(0, 0, 0),
+  //   color: vec3.fromValues(0.2, 0.8, 0.8),
+  //   texCoord: vec2.fromValues(0, 0),
+  //   radius: 0.2,
+  //   mass: 0.02,
+  // });
+  // objectVertices.push({
+  //   position: vec3.fromValues(-2, 4, -4),
+  //   velocity: vec3.fromValues(0, 0, 0),
+  //   color: vec3.fromValues(0.8, 0.8, 0.2),
+  //   texCoord: vec2.fromValues(0, 0),
+  //   radius: 0.3,
+  //   mass: 0.03,
+  // });
 
   const objectBuffers = new VertexBuffers(env.device, "object");
   await objectBuffers.initialize(objectVertices);
