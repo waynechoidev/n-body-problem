@@ -15,19 +15,11 @@ import { Vertex } from "./engine/common";
 import { VertexBuffers } from "./engine/vertex-buffers";
 import ComputePipeline from "./engine/compute-pipeline";
 import Texture from "./engine/texture";
-import { isMobile } from "./util";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 
 async function main() {
-  if (isMobile()) {
-    alert(
-      "On mobile devices, we will not support this feature due to potential precision issues with the computations."
-    );
-    return;
-  }
-
   // Initialize
   const env = new RenderEnv(
     document.querySelector("canvas") as HTMLCanvasElement
@@ -96,7 +88,7 @@ async function main() {
     velocity: vec3.fromValues(0, 0, 0),
     color: vec3.fromValues(0.8, 0.2, 0.2),
     texCoord: vec2.fromValues(0, 0),
-    radius: 0.2,
+    radius: 0.5,
     mass: 0.05,
   });
   objectVertices.push({
@@ -104,7 +96,7 @@ async function main() {
     velocity: vec3.fromValues(0, 0, 0),
     color: vec3.fromValues(0.2, 0.8, 0.8),
     texCoord: vec2.fromValues(0, 0),
-    radius: 0.1,
+    radius: 0.2,
     mass: 0.02,
   });
   objectVertices.push({
@@ -194,7 +186,7 @@ async function main() {
 
   // Projection
   const projection = mat4.create();
-  mat4.perspective(projection, toRadian(45), WIDTH / HEIGHT, 0.1, 100);
+  mat4.perspective(projection, toRadian(90), WIDTH / HEIGHT, 0.1, 100);
 
   let previousFrameTime = 0;
   async function render() {
