@@ -105,7 +105,7 @@ struct MatrixUniforms {
         }
     }
 
-    body.velocity += acceleration;
+    body.velocity = acceleration;
     body.position += body.velocity * delta;
     objects[index] = body;
 }`,ne=`struct VSOutput {
