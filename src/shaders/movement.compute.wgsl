@@ -1,19 +1,19 @@
 #include "common.wgsl"
 
 @group(0) @binding(0) var<storage, read_write> objects: array<Vertex>;
-@group(0) @binding(1) var<uniform> delta: f32;
+@group(0) @binding(1) var<uniform> numOfObject: u32;
+@group(0) @binding(2) var<uniform> delta: f32;
 
 const MIN_DISTANCE: f32 = 0.0001;
 
 @compute @workgroup_size(256) fn computeSomething(
     @builtin(global_invocation_id) global_invocation_id : vec3u,
 ) {
-    let numBodies:u32 = 3;
     let index = global_invocation_id.x;
     var body : Vertex = objects[index];
     var acceleration = vec3f(0.0, 0.0, 0.0);
 
-    for (var i = 0u; i < numBodies; i++) {
+    for (var i = 0u; i < numOfObject; i++) {
         if (i != index) {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;

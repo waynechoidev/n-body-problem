@@ -112,6 +112,18 @@ async function main() {
   await objectBuffers.initialize(objectVertices);
 
   // Buffers
+  const objectNumBuffer = env.device.createBuffer({
+    label: "frag uniforms",
+    size: 1 * Uint32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  env.device?.queue.writeBuffer(
+    objectNumBuffer,
+    0,
+    new Uint32Array([NUM_OF_OBJECT])
+  );
+
   const matrixUniformBuffer = env.device.createBuffer({
     label: "matrix uniforms",
     size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
@@ -153,7 +165,8 @@ async function main() {
     layout: computeMovementPipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: objectBuffers.point } },
-      { binding: 1, resource: { buffer: deltaUniformBuffer } },
+      { binding: 1, resource: { buffer: objectNumBuffer } },
+      { binding: 2, resource: { buffer: deltaUniformBuffer } },
     ],
   });
 
