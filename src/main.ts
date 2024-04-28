@@ -211,7 +211,7 @@ async function main() {
     env.device?.queue.writeBuffer(
       timeUniformBuffer,
       0,
-      new Float32Array([time * 0.001, WIDTH, HEIGHT])
+      new Float32Array([time * 0.001])
     );
 
     const view = camera.getViewMatrix();
