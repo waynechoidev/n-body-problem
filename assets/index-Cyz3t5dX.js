@@ -102,7 +102,7 @@ struct MatrixUniforms {
             let force = (0.067 * body.mass * other.mass) / distance * distance;
             let direction = normalize(distance_vec);
             
-            acceleration += vec3(direction * 0.0001);
+            acceleration += vec3(0.0001);
         }
     }
 
