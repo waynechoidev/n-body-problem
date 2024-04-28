@@ -86,6 +86,8 @@ struct MatrixUniforms {
 @group(0) @binding(0) var<storage, read_write> objects: array<Vertex>;
 @group(0) @binding(1) var<uniform> delta: f32;
 
+const MIN_FLOAT: f32 = 0.0001;
+
 @compute @workgroup_size(256) fn computeSomething(
     @builtin(global_invocation_id) global_invocation_id : vec3u,
 ) {
@@ -98,13 +100,16 @@ struct MatrixUniforms {
         if (i != index) {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;
-            let distance = length(distance_vec);
+            var distance = length(distance_vec);
+            if (distance < MIN_FLOAT) {
+                distance = MIN_FLOAT;
+            }
             let force = (0.067 * body.mass * other.mass) / distance * distance;
             var direction = vec3(0.0, 0.0, 0.0);
-            if (distance > 0.001) {
+            if (distance > MIN_FLOAT) {
                 direction = normalize(distance_vec);
             }
-            acceleration += direction * 0.001;
+            acceleration += direction * force;
         }
     }
 
