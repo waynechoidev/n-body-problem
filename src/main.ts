@@ -84,13 +84,21 @@ async function main() {
   // Vertex buffers
   const NUM_OF_OBJECT = 7;
   const objectVertices: Vertex[] = [];
-  for (let i = 0; i < NUM_OF_OBJECT; ++i) {
+  objectVertices.push({
+    position: vec3.fromValues(0, 0, 2),
+    velocity: vec3.fromValues(0, 0, 0),
+    color: vec3.fromValues(0.8, 0.2, 0.2),
+    texCoord: vec2.fromValues(0, 0),
+    radius: 0.3,
+    mass: 0.03,
+  });
+  for (let i = 0; i < NUM_OF_OBJECT - 1; ++i) {
     const mass = getRandomFloat(0.01, 0.03);
     objectVertices.push({
       position: vec3.fromValues(
         getRandomFloat(-5, 5),
         getRandomFloat(-5, 5),
-        getRandomFloat(-5, 5)
+        getRandomFloat(-5, 0)
       ),
       velocity: vec3.fromValues(0, 0, 0),
       color: vec3.fromValues(
