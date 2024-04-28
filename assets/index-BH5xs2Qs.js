@@ -105,8 +105,8 @@ struct MatrixUniforms {
         }
     }
 
-    body.velocity = acceleration;
-    body.position += body.velocity * delta;
+    body.velocity += acceleration;
+    
     objects[index] = body;
 }`,ne=`struct VSOutput {
   @builtin(position) position: vec4f,
