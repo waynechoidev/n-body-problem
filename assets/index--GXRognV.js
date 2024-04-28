@@ -86,6 +86,11 @@ struct MatrixUniforms {
 @group(0) @binding(0) var<storage, read_write> objects: array<Vertex>;
 @group(0) @binding(1) var<uniform> delta: f32;
 
+struct FixedPoint {
+    value: i32,
+    scale: u32,
+}
+
 @compute @workgroup_size(256) fn computeSomething(
     @builtin(global_invocation_id) global_invocation_id : vec3<u32>,
 ) {
@@ -99,13 +104,13 @@ struct MatrixUniforms {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;
             let distance = length(distance_vec);
-            let force = (6.7e-5 * body.mass * other.mass) / distance * distance;
+            let force = (0.0067 * body.mass * other.mass) / distance * distance;
             let direction = normalize(distance_vec);
             acceleration += vec3(direction * force / body.mass);
         }
     }
 
-    body.velocity += acceleration * delta;
+    body.velocity += acceleration;
     body.position += body.velocity * delta;
     objects[index] = body;
 }`,ne=`struct VSOutput {
