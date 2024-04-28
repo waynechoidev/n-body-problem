@@ -104,9 +104,9 @@ struct FixedPoint {
             let other : Vertex = objects[i];
             let distance_vec = other.position - body.position;
             let distance = length(distance_vec);
-            let force = (0.0067 * body.mass * other.mass) / distance * distance;
+            let force = (0.067 * body.mass * other.mass) / distance * distance;
             let direction = normalize(distance_vec);
-            acceleration += vec3(direction * force / body.mass);
+            acceleration += vec3(direction * force);
         }
     }
 
