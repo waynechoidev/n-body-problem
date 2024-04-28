@@ -105,6 +105,8 @@ struct MatrixUniforms {
         }
     }
 
+    let deltaa = delta;
+
     body.velocity += acceleration;
     
     objects[index] = body;
