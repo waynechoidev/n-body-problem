@@ -103,30 +103,6 @@ async function main() {
       mass: mass,
     });
   }
-  // objectVertices.push({
-  //   position: vec3.fromValues(0, 0, 0),
-  //   velocity: vec3.fromValues(0, 0, 0),
-  //   color: vec3.fromValues(0.8, 0.2, 0.2),
-  //   texCoord: vec2.fromValues(0, 0),
-  //   radius: 0.5,
-  //   mass: 0.05,
-  // });
-  // objectVertices.push({
-  //   position: vec3.fromValues(4, -1, -2),
-  //   velocity: vec3.fromValues(0, 0, 0),
-  //   color: vec3.fromValues(0.2, 0.8, 0.8),
-  //   texCoord: vec2.fromValues(0, 0),
-  //   radius: 0.2,
-  //   mass: 0.02,
-  // });
-  // objectVertices.push({
-  //   position: vec3.fromValues(-2, 4, -4),
-  //   velocity: vec3.fromValues(0, 0, 0),
-  //   color: vec3.fromValues(0.8, 0.8, 0.2),
-  //   texCoord: vec2.fromValues(0, 0),
-  //   radius: 0.3,
-  //   mass: 0.03,
-  // });
 
   const objectBuffers = new VertexBuffers(env.device, "object");
   await objectBuffers.initialize(objectVertices);

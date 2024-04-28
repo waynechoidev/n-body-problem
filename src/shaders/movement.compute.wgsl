@@ -21,12 +21,12 @@ const MIN_DISTANCE: f32 = 0.0001;
             if (distance < MIN_DISTANCE) {
                 distance = MIN_DISTANCE;
             }
-            let force = (0.067 * body.mass * other.mass) / distance * distance;
+            let force = (0.00067 * body.mass * other.mass) / distance * distance;
             var direction = vec3(0.0, 0.0, 0.0);
             if (distance > MIN_DISTANCE) {
                 direction = normalize(distance_vec);
             }
-            acceleration += direction * force;
+            acceleration += vec3(direction * force / body.mass);
         }
     }
 
