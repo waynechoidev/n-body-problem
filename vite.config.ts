@@ -8,10 +8,7 @@ const config = defineConfig({
   },
   plugins: [glsl()],
   resolve: {
-    alias: [
-      { find: "@", replacement: "/src" },
-      { find: "@external", replacement: "/external" },
-    ],
+    alias: [{ find: "@", replacement: "/src" }],
   },
 });
 

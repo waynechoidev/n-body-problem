@@ -1,5 +1,5 @@
-import { vec2, vec3, mat4 } from "@external/glmatrix/index";
-import { toRadian } from "@external/glmatrix/common.js";
+import { mat4, vec2, vec3 } from "gl-matrix";
+import { toRadian } from "@/engine/utils";
 
 export default class Camera {
   private _position: vec3;

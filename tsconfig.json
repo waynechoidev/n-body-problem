@@ -26,9 +26,8 @@
     /* Alias */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@external/*": ["external/*"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "external"]
+  "include": ["src"]
 }
