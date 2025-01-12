@@ -76,21 +76,22 @@ fn snoise(uvInput:vec3f, res:f32) -> f32 {
 	
 	var sp:vec2f = -1.0 + 2.0 * uv;
 	sp *= ( 2.0 - brightness );
-  let r:f32 = dot(sp,sp);
-	var f:f32 = (1.0-sqrt(abs(1.0-r)))/(r) + brightness * 0.5;
-  if( dist >= radius){
-    f = 0.0;
-  }
+	let r:f32 = dot(sp,sp);
+		var f:f32 = (1.0-sqrt(abs(1.0-r)))/(r) + brightness * 0.5;
+	if( dist >= radius){
+		f = 0.0;
+	}
+
+	var newUv:vec2f;
+	newUv.x = sp.x*f / 2 + 0.5;
+	newUv.y = sp.y*f / 2 + 0.5;
+	let texSample:vec3f	= textureSample(tex, mySampler, newUv).rgb;
+	let uOff:f32 = ( texSample.g * brightness * 4.5);
+	let starUV:vec2f = newUv + vec2f( uOff, 0.0 );
+	let tex:vec3f = textureSample(tex, mySampler, starUV).rgb;
 	if( dist < radius ){
 		corona *= pow( dist * invRadius, 24.0 );
-  		var newUv:vec2f;
- 		newUv.x = sp.x*f / 2 + 0.5;
-  		newUv.y = sp.y*f / 2 + 0.5;
-
-		let texSample:vec3f	= textureSampleLevel(tex, mySampler, newUv, 0).rgb;
-		let uOff:f32 = ( texSample.g * brightness * 4.5);
-		let starUV:vec2f = newUv + vec2f( uOff, 0.0 );
-		starSphere = textureSampleLevel(tex, mySampler, starUV, 0).rgb;
+		starSphere = tex;
 	}
 	
   let color = vec3f( f * ( 0.75 + brightness * 0.3 ) * input.color ) + starSphere + corona * input.color;
